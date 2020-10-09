@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -26,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
-        checkBluetoothEnable(bluetoothAdapter);
+
         checkLocationPermission();
     }
 
@@ -39,14 +40,13 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Bluetooth was enabled successfully", Toast.LENGTH_SHORT).show();
                 }else{
                     Toast.makeText(this, "Bluetooth was not enabled successfully", Toast.LENGTH_SHORT).show();
-                    checkBluetoothEnable(bluetoothAdapter);
                 }
                 break;
         }
 
     }
 
-    private void checkBluetoothEnable(BluetoothAdapter bluetoothAdapter) {
+    public void checkBluetoothEnable(View view) {
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, ENABLE_BLUETOOTH_REQUEST_CODE);
