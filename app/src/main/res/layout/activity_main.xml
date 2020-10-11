@@ -28,4 +28,10 @@
         android:layout_height="wrap_content"
         android:text="Stop Scan"
         android:onClick="stopScan"/>
+
+<androidx.recyclerview.widget.RecyclerView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/my_recycler_view"
+    android:scrollbars="vertical"/>
 </androidx.appcompat.widget.LinearLayoutCompat>

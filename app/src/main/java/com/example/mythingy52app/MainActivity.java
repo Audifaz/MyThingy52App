@@ -5,13 +5,16 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.ParcelUuid;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -21,15 +24,22 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+public class MainActivity<addAdapter> extends AppCompatActivity {
 
     BluetoothAdapter bluetoothAdapter;
     BluetoothManager bluetoothManager;
 
     public static final int ENABLE_BLUETOOTH_REQUEST_CODE = 4;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-
+    public int i=0;
+    public LinkedList<String> list= new LinkedList<String>();
     private BluetoothLeScanner bluetoothLeScanner =
             BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner();
     private boolean mScanning;
@@ -37,7 +47,8 @@ public class MainActivity extends AppCompatActivity {
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 10000;
     public static final String TAG = "BluetoothScan";
-
+    private RecyclerView mRecyclerView;
+    private scanAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +56,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
-
         checkLocationPermission();
+        mRecyclerView= findViewById(R.id.my_recycler_view);
+        mAdapter= new scanAdapter(this, list);
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
 
@@ -67,6 +81,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void checkBluetoothEnable(View view) {
+        i++;
+        list.addLast(Integer.toString(i));
+        mAdapter.notifyDataSetChanged();
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, ENABLE_BLUETOOTH_REQUEST_CODE);
@@ -117,22 +134,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+
+
     private ScanCallback mScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
             Log.d(TAG, "Device:"+result.getDevice().getName());
-
+            list.addLast("Device:"+result.getDevice().getName());
+            mAdapter.notifyDataSetChanged();
         }
     };
 
     public void startScan(View view){
         //scanLeDevice(true);
-        bluetoothLeScanner.startScan(mScanCallback);
+        //bluetoothLeScanner.startScan(mScanCallback);
+        List<ScanFilter> filterList =null;
+        filterList = new ArrayList<>();
+        ScanFilter scanFilter = new ScanFilter.Builder().
+                setServiceUuid(ParcelUuid.fromString("ef680100-9b35-4933-9b10-52ffa9740042")).build();
+        filterList.add(scanFilter);
+        ScanSettings scanSettings = new ScanSettings.Builder().build();
+        bluetoothLeScanner.startScan(filterList, scanSettings, mScanCallback);
     }
 
     public void stopScan(View view){
         //scanLeDevice(false);
+        //bluetoothLeScanner.stopScan(mScanCallback);
         bluetoothLeScanner.stopScan(mScanCallback);
     }
 
