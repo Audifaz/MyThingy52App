@@ -3,11 +3,16 @@ package com.example.mythingy52app;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -21,6 +26,19 @@ public class MainActivity extends AppCompatActivity {
 
     BluetoothAdapter bluetoothAdapter;
     BluetoothManager bluetoothManager;
+
+    public static final int ENABLE_BLUETOOTH_REQUEST_CODE = 4;
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+
+    private BluetoothLeScanner bluetoothLeScanner =
+            BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner();
+    private boolean mScanning;
+    private Handler mHandler;
+    // Stops scanning after 10 seconds.
+    private static final long SCAN_PERIOD = 10000;
+    public static final String TAG = "BluetoothScan";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
         checkLocationPermission();
     }
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -53,11 +73,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static final int ENABLE_BLUETOOTH_REQUEST_CODE = 4;
 
-
-
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
     public boolean checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this,
@@ -100,6 +116,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    private ScanCallback mScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            super.onScanResult(callbackType, result);
+            Log.d(TAG, "Device:"+result.getDevice().getName());
+
+        }
+    };
+
+    public void startScan(View view){
+        //scanLeDevice(true);
+        bluetoothLeScanner.startScan(mScanCallback);
+    }
+
+    public void stopScan(View view){
+        //scanLeDevice(false);
+        bluetoothLeScanner.stopScan(mScanCallback);
+    }
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -132,4 +169,25 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+    /*private void scanLeDevice(final boolean enable) {
+        if (enable) {
+            //stops scanning after a pre-defined scan period
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "BLE// mLEScanner.stopScan(mScanCallback) ");
+                    bluetoothLeScanner.stopScan(mScanCallback);
+                }
+            }
+        , SCAN_PERIOD);
+        Log.d(TAG,"BLE// mLEScanner.startScan(filters, settings, mScanCallback)");
+        bluetoothLeScanner.startScan(mScanCallback);
+        } else {
+            Log.d(TAG,"BLE// mLEScanner.stopScan(mScanCallback)");
+            bluetoothLeScanner.stopScan(mScanCallback);
+        }
+    }
+    */
+
 }

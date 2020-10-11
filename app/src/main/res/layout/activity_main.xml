@@ -9,9 +9,23 @@
     android:padding="16dp">
 
     <Button
-        android:id="@+id/button"
+    android:id="@+id/button"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Enable Bluetooth"
+    android:onClick="checkBluetoothEnable"/>
+
+    <Button
+        android:id="@+id/scanButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Enable Bluetooth"
-        android:onClick="checkBluetoothEnable"/>
+        android:text="StartScan"
+        android:onClick="startScan"/>
+
+    <Button
+        android:id="@+id/stopButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop Scan"
+        android:onClick="stopScan"/>
 </androidx.appcompat.widget.LinearLayoutCompat>
