@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MainActivity<addAdapter> extends AppCompatActivity {
+public class MainActivity<addAdapter> extends AppCompatActivity implements scanAdapter.ScanItemClickListener{
 
     BluetoothAdapter bluetoothAdapter;
     BluetoothManager bluetoothManager;
@@ -58,7 +58,7 @@ public class MainActivity<addAdapter> extends AppCompatActivity {
         bluetoothAdapter = bluetoothManager.getAdapter();
         checkLocationPermission();
         mRecyclerView= findViewById(R.id.my_recycler_view);
-        mAdapter= new scanAdapter(this, list);
+        mAdapter= new scanAdapter(this, list,this );
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -136,13 +136,14 @@ public class MainActivity<addAdapter> extends AppCompatActivity {
 
 
 
-
+    List<ScanResult> devices=new ArrayList<ScanResult>();
     private ScanCallback mScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
             Log.d(TAG, "Device:"+result.getDevice().getName());
             list.addLast("Device:"+result.getDevice().getName());
+            devices.add(result);
             mAdapter.notifyDataSetChanged();
         }
     };
@@ -197,6 +198,11 @@ public class MainActivity<addAdapter> extends AppCompatActivity {
             }
 
         }
+    }
+
+    @Override
+    public void onScanItemClick(int position) {
+        Toast.makeText(this, devices.get(position).getDevice().getName(), Toast.LENGTH_SHORT).show();
     }
 
     /*private void scanLeDevice(final boolean enable) {

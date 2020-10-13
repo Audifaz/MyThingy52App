@@ -12,20 +12,31 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.LinkedList;
 
 public class scanAdapter extends RecyclerView.Adapter<scanAdapter.ViewHolder> {
+
     private LayoutInflater mInflater;
     public LinkedList<String> mList = new LinkedList<String>();
-    public scanAdapter(Context context, LinkedList<String> list){
+    final private ScanItemClickListener mOnClickListener;
+
+    public scanAdapter(Context context, LinkedList<String> list, ScanItemClickListener onClickListener ){
         this.mList=list;
+        this.mOnClickListener = onClickListener;
         mInflater= LayoutInflater.from(context);
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public TextView mTextView;
         public scanAdapter mAdapter;
         public ViewHolder(@NonNull View itemView, scanAdapter adapter) {
             super(itemView);
             this.mTextView=itemView.findViewById(R.id.scanText);
+            itemView.setOnClickListener(this);
             this.mAdapter=adapter;
+        }
+
+        @Override
+        public void onClick(View view) {
+            int position = getLayoutPosition();
+            mOnClickListener.onScanItemClick(position);
         }
     }
 
@@ -50,4 +61,11 @@ public class scanAdapter extends RecyclerView.Adapter<scanAdapter.ViewHolder> {
             return mList.size();
         }
     }
+
+    //Interface for clicking individual objects
+    interface ScanItemClickListener{
+        void onScanItemClick(int position);
+    }
+
+
 }
