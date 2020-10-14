@@ -2,7 +2,10 @@ package com.example.mythingy52app;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
@@ -203,7 +206,30 @@ public class MainActivity<addAdapter> extends AppCompatActivity implements scanA
     @Override
     public void onScanItemClick(int position) {
         Toast.makeText(this, devices.get(position).getDevice().getName(), Toast.LENGTH_SHORT).show();
+        bluetoothLeScanner.stopScan(mScanCallback);
+        BluetoothGatt test=devices.get(position).getDevice().connectGatt(this, false, gattCallback);
     }
+
+    private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
+
+        @Override
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            super.onConnectionStateChange(gatt, status, newState);
+            if(status==BluetoothGatt.GATT_SUCCESS){
+                if(newState== BluetoothProfile.STATE_CONNECTED){
+                    Log.d(TAG, "Bluetooth connected");
+                    //Toast.makeText(getApplicationContext(), "Bluetooth connected", Toast.LENGTH_SHORT).show();
+                }else if(newState==BluetoothProfile.STATE_DISCONNECTED){
+                    Log.d(TAG,  "Bluetooth disconnected");
+                    //Toast.makeText(getApplicationContext(), "Bluetooth disconnected", Toast.LENGTH_SHORT).show();
+                }
+            }else{
+                Log.d(TAG, "Bluetooth error!!!!!!");
+                //Toast.makeText(getApplicationContext(), "Bluetooth error!!!!!!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
+
 
     /*private void scanLeDevice(final boolean enable) {
         if (enable) {
