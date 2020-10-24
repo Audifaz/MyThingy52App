@@ -4,6 +4,7 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
@@ -138,7 +139,7 @@ public class MainActivity<addAdapter> extends AppCompatActivity implements scanA
 
 
 
-
+/*
     List<ScanResult> devices=new ArrayList<ScanResult>();
     private ScanCallback mScanCallback = new ScanCallback() {
         @Override
@@ -148,6 +149,38 @@ public class MainActivity<addAdapter> extends AppCompatActivity implements scanA
             list.addLast("Device:"+result.getDevice().getName());
             devices.add(result);
             mAdapter.notifyDataSetChanged();
+        }
+    };
+*/
+
+    List <ScanResult> devices = new ArrayList <ScanResult>(1);
+    int comp=1;
+    private ScanCallback mScanCallback = new ScanCallback() {
+
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            boolean flag = false;
+            super.onScanResult(callbackType, result);
+            if(devices.size()>0){
+                //Log.d(TAG,"Comparation: "+comp);
+                for (int i = 0; i < (devices.size()); i++) {
+                    if ((devices.get(i).getDevice().toString()).equals(result.getDevice().toString())) {
+                        flag = true;
+                    }
+                }
+                comp++;
+                if (flag == false) {
+                    list.addLast("Device:" + result.getDevice().getName());
+                    devices.add(result);
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+            else{
+                list.addLast("Device:" + result.getDevice().getName());
+                devices.add(result);
+                //Log.d(TAG, "TEST"+ devices.get(0).getDevice().toString());
+                mAdapter.notifyDataSetChanged();
+            }
         }
     };
 
@@ -207,8 +240,12 @@ public class MainActivity<addAdapter> extends AppCompatActivity implements scanA
     public void onScanItemClick(int position) {
         Toast.makeText(this, devices.get(position).getDevice().getName(), Toast.LENGTH_SHORT).show();
         bluetoothLeScanner.stopScan(mScanCallback);
-        BluetoothGatt test=devices.get(position).getDevice().connectGatt(this, false, gattCallback);
+        Intent intent = new Intent(MainActivity.this , Activity2.class);
+        intent.putExtra("Example item", devices.get(position).getDevice());
+        startActivity(intent);
+        //BluetoothGatt test=devices.get(position).getDevice().connectGatt(this, false, gattCallback);
     }
+
 
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
 
@@ -218,14 +255,24 @@ public class MainActivity<addAdapter> extends AppCompatActivity implements scanA
             if(status==BluetoothGatt.GATT_SUCCESS){
                 if(newState== BluetoothProfile.STATE_CONNECTED){
                     Log.d(TAG, "Bluetooth connected");
-                    //Toast.makeText(getApplicationContext(), "Bluetooth connected", Toast.LENGTH_SHORT).show();
+                    gatt.discoverServices();
                 }else if(newState==BluetoothProfile.STATE_DISCONNECTED){
                     Log.d(TAG,  "Bluetooth disconnected");
-                    //Toast.makeText(getApplicationContext(), "Bluetooth disconnected", Toast.LENGTH_SHORT).show();
+
                 }
             }else{
                 Log.d(TAG, "Bluetooth error!!!!!!");
-                //Toast.makeText(getApplicationContext(), "Bluetooth error!!!!!!", Toast.LENGTH_SHORT).show();
+
+            }
+        }
+
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            super.onServicesDiscovered(gatt, status);
+            List<BluetoothGattService> servicios =gatt.getServices();
+            Log.d(TAG, "Número de servicios: "+servicios.size());
+            for(int i=0; i<servicios.size();i++){
+                Log.d(TAG,"UUID del Servicio: " + servicios.get(i).getUuid().toString() + " Su nombre es: " + servicios.get(i).toString());
             }
         }
     };

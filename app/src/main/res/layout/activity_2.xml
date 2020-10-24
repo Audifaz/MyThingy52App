@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Activity2"
+    android:layout_margin="8dp">
+
+     <TextView
+         android:id="@+id/service1"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:text="Service"
+         android:layout_margin="8dp"
+         />
+    <Button
+        android:id="@+id/getService1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="click me"/>
+
+    <TextView
+        android:id="@+id/phyButtonStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_margin="8dp"
+        />
+
+    <Button
+        android:id="@+id/phyButtonSubscribe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Physical button subscriber" />
+
+    <Button
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="100dp"
+        android:id="@+id/disconnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Disconnect from device" />
+</LinearLayout>
