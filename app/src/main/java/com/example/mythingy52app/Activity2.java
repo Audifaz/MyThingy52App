@@ -1,7 +1,5 @@
 package com.example.mythingy52app;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
@@ -10,14 +8,14 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Intent;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.List;
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.UUID;
 
 public class Activity2 extends AppCompatActivity {
@@ -26,6 +24,8 @@ public class Activity2 extends AppCompatActivity {
     Button Disconnect;
     String TAG = "SecondActivity";
     BluetoothGatt test;
+    int BUTTON_PRESSED = 1;
+    int BUTTON_RELEASED = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,13 +88,16 @@ public class Activity2 extends AppCompatActivity {
             BluetoothGattService servicio = gatt.getService(UUID.fromString("ef680300-9b35-4933-9b10-52ffa9740042"));
             BluetoothGattCharacteristic BTCharac = servicio.getCharacteristic(new UUID(0xEF6803029B354933L, 0x9B1052FFA9740042L));
             gatt.setCharacteristicNotification(BTCharac,true);
+            BluetoothGattDescriptor descriptor = BTCharac.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
+            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+            boolean success = gatt.writeDescriptor(descriptor);
+            Log.d(TAG, "The notification was enabled successfully?" + success);
         }
 
 
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicRead(gatt, characteristic, status);
-            Log.d(TAG, "Si funciona");
-            Log.d(TAG, "ButtonState ");
+
         }
 
         @Override
@@ -105,8 +108,13 @@ public class Activity2 extends AppCompatActivity {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
-            Log.d(TAG, "Si funciona");
-            Log.d(TAG, "ButtonState ");
+            Log.d(TAG, "Si funciona la notificación");
+            if(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0)==BUTTON_PRESSED){
+                Log.d(TAG, "Botón oprimido");
+            }
+            else{
+                Log.d(TAG, "Botón ya no oprimido");
+            }
         }
 
         @Override
