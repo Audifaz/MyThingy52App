@@ -33,6 +33,7 @@ public class Activity2 extends AppCompatActivity {
     int BUTTON_PRESSED = 1;
     int BUTTON_RELEASED = 0;
     List<BluetoothGattService> servicios;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +57,7 @@ public class Activity2 extends AppCompatActivity {
             public void onClick(View view) {
                 gattConnection.close();
                 gattConnection = null;
-                Intent intent = new Intent(Activity2.this , MainActivity.class);
+                Intent intent = new Intent(Activity2.this, MainActivity.class);
                 startActivity(intent);
             }
         }));
@@ -70,8 +71,10 @@ public class Activity2 extends AppCompatActivity {
         unregisterReceiver(gattUpdate);
     }
 
+    //BluetoothGattCharacteristic BTCharacWrite = new BluetoothGattCharacteristic()
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
         Intent broadcastUpdate = new Intent();
+
         @Override
         public void onPhyUpdate(BluetoothGatt gatt, int txPhy, int rxPhy, int status) {
             super.onPhyUpdate(gatt, txPhy, rxPhy, status);
@@ -85,17 +88,19 @@ public class Activity2 extends AppCompatActivity {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             super.onConnectionStateChange(gatt, status, newState);
-            if(status == BluetoothGatt.GATT_SUCCESS){
-                if(newState == BluetoothProfile.STATE_CONNECTED){
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                if (newState == BluetoothProfile.STATE_CONNECTED) {
                     gatt.discoverServices();
                     Log.d(TAG, "Bluetooth connected");
+                } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                    Log.d(TAG, "Bluetooth disconnected");
+                    Intent intent = new Intent(Activity2.this, MainActivity.class);
+                    startActivity(intent);
                 }
-                else if(newState == BluetoothProfile.STATE_DISCONNECTED){
-                    Log.d(TAG,  "Bluetooth disconnected");
-                }
-            }
-            else{
+            } else {
                 Log.d(TAG, "Bluetooth error!!!!!!");
+                Intent intent = new Intent(Activity2.this, MainActivity.class);
+                startActivity(intent);
             }
         }
 
@@ -120,12 +125,10 @@ public class Activity2 extends AppCompatActivity {
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
             broadcastUpdate.setAction("com.example.mythingy52.app.MY_INTENT");
-            Log.d(TAG, "Si funciona la notificación");
-            if(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0)==BUTTON_PRESSED){
+            if (characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0) == BUTTON_PRESSED) {
                 broadcastUpdate.putExtra("value", "Button On");
                 Log.d(TAG, "Botón oprimido");
-            }
-            else{
+            } else {
                 broadcastUpdate.putExtra("value", "Button Off");
                 Log.d(TAG, "Botón ya no oprimido");
             }
@@ -140,7 +143,7 @@ public class Activity2 extends AppCompatActivity {
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             super.onDescriptorWrite(gatt, descriptor, status);
-            if(status==BluetoothGatt.GATT_SUCCESS){
+            if (status == BluetoothGatt.GATT_SUCCESS) {
                 Log.d(TAG, "Funciono la escritura?");
             }
         }
@@ -163,7 +166,7 @@ public class Activity2 extends AppCompatActivity {
 
     public void connectPhysicalDevice(View view) {
         BluetoothGattCharacteristic BTCharac = servicios.get(2).getCharacteristic(UUID.fromString("00001524-1212-efde-1523-785feabcd123"));
-        gattConnection.setCharacteristicNotification(BTCharac,true);
+        gattConnection.setCharacteristicNotification(BTCharac, true);
         BluetoothGattDescriptor descriptor = BTCharac.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
         boolean success = gattConnection.writeDescriptor(descriptor);
@@ -179,20 +182,23 @@ public class Activity2 extends AppCompatActivity {
         }
     };
 
-    boolean turnLed=false;
+    boolean turnLed = false;
     boolean writefunc;
+    int firstTime = 0;
+
     public void sendData(View view) {
-        BluetoothGattCharacteristic BTCharac = servicios.get(2).getCharacteristic(UUID.fromString("00001525-1212-efde-1523-785feabcd123"));
-        //Toast.makeText(this, Integer.toString(BTCharac.getWriteType()), Toast.LENGTH_LONG).show();
-        BTCharac.setWriteType(BluetoothGattCharacteristic.PERMISSION_WRITE);
-        if(!turnLed) {
-            BTCharac.setValue(1, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+        BluetoothGattCharacteristic BTCharacWrite = servicios.get(2).getCharacteristic(UUID.fromString("00001525-1212-efde-1523-785feabcd123"));
+        if (firstTime == 0)
+            gattConnection.setCharacteristicNotification(BTCharacWrite, true);
+        BTCharacWrite.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+        if (!turnLed) {
+            BTCharacWrite.setValue(1, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
             turnLed = true;
-        }else{
-            BTCharac.setValue(0, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+        } else {
+            BTCharacWrite.setValue(0, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
             turnLed = false;
         }
-        writefunc=gattConnection.writeCharacteristic(BTCharac);
+        writefunc = gattConnection.writeCharacteristic(BTCharacWrite);
         Log.d(TAG, "Esta escribiendo? " + writefunc);
     }
 }
