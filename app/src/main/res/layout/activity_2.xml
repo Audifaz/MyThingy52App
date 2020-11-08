@@ -6,20 +6,22 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".Activity2"
-    android:layout_margin="8dp">
+    android:layout_margin="8dp"
+    android:gravity="center">
 
      <TextView
-         android:id="@+id/service1"
+         android:id="@+id/deviceName"
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"
          android:text="Service"
          android:layout_margin="8dp"
+         android:textSize="50dp"
          />
     <Button
         android:id="@+id/getService1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="click me"/>
+        android:text="Connect Device"/>
 
     <TextView
         android:id="@+id/phyButtonStatus"
@@ -33,12 +35,29 @@
         android:id="@+id/phyButtonSubscribe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Physical button subscriber" />
+        android:text="Physical button subscriber"
+        android:onClick="connectPhysicalDevice"/>
+
+    <TextView
+        android:id="@+id/buttonState"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button State"
+        android:layout_margin="8dp"
+        android:textSize="50dp"
+        />
 
     <Button
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="100dp"
+        android:id="@+id/sendData"
+        android:layout_marginTop="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send Data"
+        android:onClick="sendData"/>
+
+    <Button
         android:id="@+id/disconnect"
+        android:layout_marginTop="150dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Disconnect from device" />

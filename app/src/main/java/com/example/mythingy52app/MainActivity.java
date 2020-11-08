@@ -85,8 +85,6 @@ public class MainActivity<addAdapter> extends AppCompatActivity implements scanA
     }
 
     public void checkBluetoothEnable(View view) {
-        i++;
-        list.addLast(Integer.toString(i));
         mAdapter.notifyDataSetChanged();
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -97,9 +95,7 @@ public class MainActivity<addAdapter> extends AppCompatActivity implements scanA
 
 
     public boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -132,6 +128,9 @@ public class MainActivity<addAdapter> extends AppCompatActivity implements scanA
             }
             return false;
         } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_LOCATION);
             Toast.makeText(this, "Location enabled", Toast.LENGTH_SHORT).show();
             return true;
         }
@@ -178,7 +177,6 @@ public class MainActivity<addAdapter> extends AppCompatActivity implements scanA
             else{
                 list.addLast("Device:" + result.getDevice().getName());
                 devices.add(result);
-                //Log.d(TAG, "TEST"+ devices.get(0).getDevice().toString());
                 mAdapter.notifyDataSetChanged();
             }
         }
@@ -193,7 +191,8 @@ public class MainActivity<addAdapter> extends AppCompatActivity implements scanA
                 setServiceUuid(ParcelUuid.fromString("ef680100-9b35-4933-9b10-52ffa9740042")).build();
         filterList.add(scanFilter);
         ScanSettings scanSettings = new ScanSettings.Builder().build();
-        bluetoothLeScanner.startScan(filterList, scanSettings, mScanCallback);
+        //bluetoothLeScanner.startScan(filterList, scanSettings, mScanCallback);
+        bluetoothLeScanner.startScan(mScanCallback);
     }
 
     public void stopScan(View view){
@@ -238,7 +237,7 @@ public class MainActivity<addAdapter> extends AppCompatActivity implements scanA
 
     @Override
     public void onScanItemClick(int position) {
-        Toast.makeText(this, devices.get(position).getDevice().getName(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, devices.get(position).getDevice().getName(), Toast.LENGTH_SHORT).show();
         bluetoothLeScanner.stopScan(mScanCallback);
         Intent intent = new Intent(MainActivity.this , Activity2.class);
         intent.putExtra("Example item", devices.get(position).getDevice());
